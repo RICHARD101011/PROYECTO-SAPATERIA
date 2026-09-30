@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pago | Calzado Shama</title>
+<link rel="icon" href="assets/img/logo-original.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<div class="co">
+  <div class="co-left">
+    <form class="co-inner" id="form" onsubmit="return pagar(event)">
+      <div class="co-logo">
+        <a href="index.html"><img src="assets/img/logo-rojo.png" alt="Calzado Shama"></a>
+        <a href="carrito.html" title="Volver al carrito"><svg viewBox="0 0 24 24"><path d="M5 8h14l-1.5 12h-11z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+      </div>
+
+      <h2>Contacto <a href="#">Iniciar sesión</a></h2>
+      <input class="field" type="email" placeholder="Correo electrónico" required>
+      <label class="check"><input type="checkbox"> Enviarme novedades y ofertas por correo electrónico</label>
+      <input class="field" placeholder="NIT o CF para tu factura" value="CF">
+      <input class="field" type="tel" placeholder="Número de teléfono (8 dígitos)" pattern="[0-9]{8}" title="Ingresa un número de teléfono válido de 8 dígitos" required>
+
+      <h2>Entrega</h2>
+      <div class="seg" id="entrega">
+        <button type="button" class="on" data-v="envio">📦 Envío</button>
+        <button type="button" data-v="tienda">📍 Retiro en tienda</button>
+      </div>
+      <div id="envioCampos">
+        <select class="field"><option>Guatemala</option></select>
+        <div class="row2"><input class="field" placeholder="Nombre" required><input class="field" placeholder="Apellidos" required></div>
+        <input class="field" placeholder="Dirección" required>
+        <div class="row3">
+          <input class="field" placeholder="Ciudad / municipio">
+          <select class="field" id="depto"><option value="">Departamento</option></select>
+          <input class="field" placeholder="Código postal (opcional)">
+        </div>
+        <label class="check"><input type="checkbox"> Guardar mi información para la próxima vez</label>
+        <h2 style="font-size:17px">Métodos de envío</h2>
+        <div class="info-box" id="envioInfo">Selecciona tu departamento para ver los métodos disponibles.</div>
+      </div>
+      <div id="tiendaCampos" style="display:none">
+        <div class="info-box" style="text-align:left"><b style="color:var(--negro)">Calzado Shama – Tienda principal</b><br>18 Calle 11-12, Ciudad de Guatemala 01001<br>Tel. 3788 9695 · <a href="https://www.google.com/maps/search/?api=1&query=Calzado+Shama+18+Calle+11-12+Ciudad+de+Guatemala" target="_blank" style="text-decoration:underline">Cómo llegar</a><br>Tu pedido estará listo en 24 horas. Retiro gratis.</div>
+      </div>
+
+      <h2 style="display:block">Pago <small style="display:block;font-size:13px;font-weight:400;color:var(--gris);margin-top:4px">Todas las transacciones son seguras y están encriptadas.</small></h2>
+      <div class="pay" id="pay">
+        <div class="pay-opt on">
+          <label><input type="radio" name="pago" value="tarjeta" checked> Tarjeta de crédito o débito
+            <span class="pay-logos"><i style="background:#1a1f71">VISA</i><i style="background:#eb001b">MC</i><i style="background:#2e77bc">AMEX</i></span></label>
+          <div class="pay-body">
+            <input class="field" placeholder="Número de tarjeta" inputmode="numeric" maxlength="19">
+            <div class="row2"><input class="field" placeholder="Vencimiento (MM / AA)"><input class="field" placeholder="Código de seguridad"></div>
+            <input class="field" placeholder="Nombre del titular">
+            <label class="check" style="margin:0"><input type="checkbox" checked> Usar la dirección de envío como dirección de facturación</label>
+          </div>
+        </div>
+        <div class="pay-opt">
+          <label><input type="radio" name="pago" value="visacuotas"> Visacuotas
+            <span class="pay-logos"><i style="background:#1a1f71">VISA</i><i style="background:#5b3df5">recurrente</i></span></label>
+          <div class="pay-body">
+            <p>Elige en cuántas cuotas quieres pagar tu compra:</p>
+            <div class="cuotas" id="cuotas"></div>
+            <span class="recurrente">🔒 Procesado de forma segura por <b>Recurrente</b>. Al pagar te llevaremos a su página para completar el pago.</span>
+          </div>
+        </div>
+        <div class="pay-opt">
+          <label><input type="radio" name="pago" value="contra"> Pago contra entrega</label>
+          <div class="pay-body"><p style="margin:0">Pagas en efectivo o con tarjeta (POS) cuando recibas tu pedido. Disponible en todo el país.</p></div>
+        </div>
+        <div class="pay-opt">
+          <label><input type="radio" name="pago" value="transferencia"> Pago con transferencia o depósito</label>
+          <div class="pay-body">
+            <p>Realiza tu transferencia a esta cuenta y envía la boleta por WhatsApp:</p>
+            <div class="bank"><b>Banco:</b> Banco Industrial<br><b>Cuenta monetaria:</b> 000-000000-0<br><b>A nombre de:</b> Calzado Shama<br><b>Referencia:</b> tu número de pedido</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="pay-btn" id="payBtn">Pagar ahora</button>
+      <div class="co-legal"><a href="#">Política de reembolso</a><a href="#">Envío</a><a href="#">Política de privacidad</a><a href="#">Términos del servicio</a></div>
+    </form>
+  </div>
+
+  <aside class="co-right">
+    <div class="co-inner" id="resumen"></div>
+  </aside>
+</div>
+
+<div class="modal-back" id="modal">
+  <div class="modal">
+    <div class="ok"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div>
+    <h3>¡Pedido recibido!</h3>
+    <p id="modalTxt">Te enviamos la confirmación por correo. Gracias por comprar en Calzado Shama.</p>
+    <a class="btn btn-dark" href="index.html">Volver a la tienda</a>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const DEPTOS = ["Guatemala","Alta Verapaz","Baja Verapaz","Chimaltenango","Chiquimula","El Progreso","Escuintla","Huehuetenango","Izabal","Jalapa","Jutiapa","Petén","Quetzaltenango","Quiché","Retalhuleu","Sacatepéquez","San Marcos","Santa Rosa","Sololá","Suchitepéquez","Totonicapán","Zacapa"];
+document.getElementById("depto").innerHTML += DEPTOS.map(d => `<option>${d}</option>`).join("");
+
+let envio = null, modo = "envio";
+const prods = getProductos();
+let carrito = getCarrito();
+if (!carrito.length) carrito = [{ id: 11, talla: 37, cant: 1 }];
+const subtotal = carrito.reduce((a, it) => a + (prods.find(p => p.id === it.id)?.precio || 0) * it.cant, 0);
+
+function resumen() {
+  const total = subtotal + (modo === "envio" ? (envio || 0) : 0);
+  document.getElementById("resumen").innerHTML = carrito.map(it => {
+    const p = prods.find(x => x.id === it.id); if (!p) return "";
+    return `<div class="sum-item"><div class="sum-img"><img src="${p.img.replace("w=800", "w=160")}" alt=""><span>${it.cant}</span></div>
+      <div>${p.nombre}<br><small>${it.talla} / ${p.color}</small></div><b style="font-size:14px">${Q(p.precio * it.cant)}</b></div>`;
+  }).join("") + `
+    <div class="gift"><input class="field" placeholder="Código de descuento"><button type="button">Aplicar</button></div>
+    <div class="sum-line"><span>Subtotal</span><span>${Q(subtotal)}</span></div>
+    <div class="sum-line"><span>Envío</span><span style="color:var(--gris)">${modo === "tienda" ? "Gratis" : envio === null ? "Selecciona tu departamento" : Q(envio)}</span></div>
+    <div class="sum-total"><span>Total</span><span><small>GTQ</small>${Q(total)}</span></div>`;
+  const cuota = (n) => Q(total / n);
+  document.getElementById("cuotas").innerHTML = [3, 6, 10, 12].map((n, i) =>
+    `<button type="button" class="${i === 3 ? "on" : ""}"><b>${n} cuotas</b>${cuota(n)}/mes</button>`).join("");
+  document.querySelectorAll("#cuotas button").forEach(b => b.onclick = () => {
+    document.querySelectorAll("#cuotas button").forEach(x => x.classList.remove("on")); b.classList.add("on");
+  });
+}
+
+document.getElementById("depto").onchange = (e) => {
+  const d = e.target.value;
+  envio = !d ? null : d === "Guatemala" ? 25 : 35;
+  document.getElementById("envioInfo").innerHTML = !d ? "Selecciona tu departamento para ver los métodos disponibles." :
+    `<label class="check" style="justify-content:space-between;margin:0;color:var(--negro)"><span><input type="radio" checked> Envío estándar (${d === "Guatemala" ? "24 a 48 h" : "2 a 3 días hábiles"})</span><b>${Q(envio)}</b></label>`;
+  resumen();
+};
+
+document.querySelectorAll("#entrega button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#entrega button").forEach(x => x.classList.toggle("on", x === b));
+  modo = b.dataset.v;
+  document.getElementById("envioCampos").style.display = modo === "envio" ? "" : "none";
+  document.getElementById("tiendaCampos").style.display = modo === "tienda" ? "" : "none";
+  document.querySelectorAll("#envioCampos [required]").forEach(i => i.required = modo === "envio");
+  resumen();
+});
+
+const TXT_BTN = { tarjeta: "Pagar ahora", visacuotas: "Continuar a Recurrente", contra: "Confirmar pedido", transferencia: "Confirmar pedido" };
+document.querySelectorAll("input[name=pago]").forEach(r => r.onchange = () => {
+  document.querySelectorAll(".pay-opt").forEach(o => o.classList.toggle("on", o.contains(r) && r.checked));
+  document.getElementById("payBtn").textContent = TXT_BTN[r.value];
+});
+
+function pagar(e) {
+  e.preventDefault();
+  const m = document.querySelector("input[name=pago]:checked").value;
+  const n = "SH-" + Math.floor(10000 + Math.random() * 89999);
+  const msg = {
+    tarjeta: `Tu pago fue aprobado. Número de pedido <b>${n}</b>.`,
+    visacuotas: `En la versión final aquí se abre la página de pago de Recurrente. Pedido <b>${n}</b>.`,
+    contra: `Pedido <b>${n}</b> confirmado. Pagarás al recibirlo.`,
+    transferencia: `Pedido <b>${n}</b> reservado. Envía tu boleta por WhatsApp al 3788 9695 para confirmarlo.`,
+  }[m];
+  document.getElementById("modalTxt").innerHTML = msg + "<br><small>(Prototipo de demostración: no se realizó ningún cobro.)</small>";
+  const pedidos = Store.get("pedidos", []);
+  pedidos.unshift({ id: n, fecha: new Date().toLocaleString("es-GT"), cliente: document.querySelector("input[placeholder=Nombre]").value || "Cliente tienda", total: subtotal + (modo === "envio" ? (envio || 0) : 0), metodo: m, estado: "Pendiente" });
+  Store.set("pedidos", pedidos);
+  setCarrito([]);
+  document.getElementById("modal").classList.add("open");
+  return false;
+}
+resumen();
+</script>
+</body>
+</html>

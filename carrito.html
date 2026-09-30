@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carrito de compra | Calzado Shama</title>
+<link rel="icon" href="assets/img/logo-original.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="wrap">
+  <div class="cart-page" id="cart"></div>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+/* Si el carrito está vacío, se llena con 2 productos para la presentación */
+if (!getCarrito().length && !sessionStorage.getItem("shama_demo")) {
+  try { sessionStorage.setItem("shama_demo", "1"); } catch (e) {}
+  Store.set("carrito", [{ id: 11, talla: 37, cant: 1 }, { id: 60, talla: 41, cant: 1 }]);
+}
+
+function pintar() {
+  const prods = getProductos(), c = getCarrito();
+  const el = document.getElementById("cart");
+  if (!c.length) {
+    el.innerHTML = `<h1>Carrito de compra</h1><div class="empty">Tu carrito está vacío.<br><br><a class="btn btn-dark" href="index.html">Seguir comprando</a></div>`;
+    return;
+  }
+  let sub = 0;
+  const filas = c.map((it, i) => {
+    const p = prods.find(x => x.id === it.id); if (!p) return "";
+    const tot = p.precio * it.cant; sub += tot;
+    return `
+    <div class="cart-row">
+      <div class="cart-prod">
+        <img src="${p.img.replace("w=800", "w=200")}" alt="${p.nombre}">
+        <div>
+          <b>${p.nombre}</b>
+          <small>${it.talla} / ${p.color}</small>
+          <small>TALLA: <select data-i="${i}" class="talla">${p.tallas.map(t => `<option ${t === it.talla ? "selected" : ""}>${t}</option>`).join("")}</select></small>
+        </div>
+      </div>
+      <div>${Q(p.precio)}</div>
+      <div>
+        <div class="qty"><button data-i="${i}" data-d="-1">−</button><span>${it.cant}</span><button data-i="${i}" data-d="1">+</button></div>
+        <button class="remove" data-del="${i}">Quitar</button>
+      </div>
+      <div><b>${Q(tot)}</b></div>
+    </div>`;
+  }).join("");
+
+  el.innerHTML = `
+    <h1>Carrito de compra</h1>
+    <div class="cart-head"><span>Producto</span><span>Precio</span><span>Cantidad</span><span>Total</span></div>
+    ${filas}
+    <p style="text-align:center;margin:22px 0"><a href="index.html" style="text-decoration:underline">Continuar comprando</a></p>
+    <div class="cart-sub"><span>Subtotal</span><span>${Q(sub)}</span></div>
+    <div class="cart-note">
+      <label for="nota">Agregar comentarios al pedido</label>
+      <textarea id="nota" placeholder="Ej.: entregar en horario de oficina"></textarea>
+      <p style="margin-bottom:18px">Los impuestos y <a href="#" style="color:var(--rojo);text-decoration:underline">gastos de envío</a> se calculan en la pantalla de pagos.</p>
+      <a class="btn btn-red" href="checkout.html" style="padding:15px 36px">Finalizar pedido</a>
+    </div>`;
+
+  el.querySelectorAll(".qty button").forEach(b => b.onclick = () => {
+    const c = getCarrito(); c[b.dataset.i].cant = Math.max(1, c[b.dataset.i].cant + +b.dataset.d); setCarrito(c); pintar();
+  });
+  el.querySelectorAll("[data-del]").forEach(b => b.onclick = () => {
+    const c = getCarrito(); c.splice(b.dataset.del, 1); setCarrito(c); pintar();
+  });
+  el.querySelectorAll(".talla").forEach(s => s.onchange = () => {
+    const c = getCarrito(); c[s.dataset.i].talla = +s.value; setCarrito(c); pintar();
+  });
+}
+pintar();
+</script>
+</body>
+</html>

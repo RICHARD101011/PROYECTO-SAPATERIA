@@ -1,0 +1,29 @@
+CALZADO SHAMA - Prototipo de página web
+=======================================
+
+CÓMO ABRIRLO
+1. Descomprime el zip.
+2. Abre "index.html" con doble clic (Chrome, Edge o Firefox).
+3. Necesitas internet para que carguen las fotos de los zapatos y las letras.
+
+PÁGINAS
+- index.html ............ Portada: carrusel, sección "Nosotros y servicios" (desde 1998, reparación, cinchos),, categorías (incluye Ortopédico y Pie diabético),
+                          "Lo nuevo en Shama" (cambia al azar en cada visita), secciones y
+                          "Lo novedoso de Shama".
+- categoria.html ........ Catálogo por sección con filtros de talla, color y precio.
+- producto.html ......... Detalle del zapato con selección de talla.
+- carrito.html .......... Carrito de compra.
+- checkout.html ......... Pago: tarjeta, Visacuotas (Recurrente), contra entrega y transferencia.
+- admin/index.html ...... Panel administrador (también con el ícono de persona arriba a la derecha):
+                          Dashboard de inventario con descarga a Excel, Nuevo modelo,
+                          Productos, Subir imágenes, Editar menú y Verificación de pedidos.
+
+PARA LA PRESENTACIÓN
+- Si agregas un modelo o una pestaña de menú en el panel, aparece de inmediato en la tienda.
+- "Restablecer datos" (abajo en el panel) regresa todo a los datos de ejemplo.
+- Es un prototipo: no cobra nada y los cambios solo se guardan en tu navegador.
+
+CAMBIAR FOTOS
+Todas las fotos y productos están en assets/js/data.js. Cambia la URL de "img" por la
+ruta de tu foto, por ejemplo: "assets/img/productos/mi-zapato.jpg".
+Las fotos de ejemplo son de Unsplash (uso libre).

@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel administrador | Calzado Shama</title>
+<link rel="icon" href="../assets/img/logo-original.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/css/styles.css">
+<style>
+  body { background: #f3f1ef; }
+  .adm { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+  .side { background: var(--negro); color: #cfc8c2; padding: 22px 14px; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; }
+  .side img { height: 38px; width: auto; margin: 4px 10px 26px; }
+  .side button { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; border-radius: 10px; text-align: left; font-size: 14px; font-weight: 500; }
+  .side button:hover { background: rgba(255,255,255,.07); color: #fff; }
+  .side button.on { background: var(--rojo); color: #fff; }
+  .side svg { width: 20px; height: 20px; }
+  .side .foot { margin-top: auto; font-size: 13px; padding: 10px 14px; }
+  .side .foot a { color: #fff; text-decoration: underline; }
+  .main { padding: 28px 36px 60px; min-width: 0; }
+  .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 26px; gap: 16px; flex-wrap: wrap; }
+  .top h1 { font-size: 34px; text-transform: uppercase; }
+  .top small { display: block; color: var(--gris); font-family: var(--texto); font-size: 14px; text-transform: none; font-weight: 400; }
+  .user { display: flex; align-items: center; gap: 10px; background: #fff; padding: 6px 14px 6px 6px; border-radius: 99px; border: 1px solid var(--linea); font-size: 14px; }
+  .user span { width: 34px; height: 34px; border-radius: 99px; background: var(--rojo); color: #fff; display: grid; place-items: center; font-weight: 700; }
+  .view { display: none; } .view.on { display: block; }
+  .panel { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 24px; margin-bottom: 22px; }
+  .panel h2 { font-size: 22px; text-transform: uppercase; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .tile { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 26px; text-align: left; transition: .2s; display: flex; flex-direction: column; gap: 10px; }
+  .tile:hover { border-color: var(--rojo); transform: translateY(-3px); box-shadow: var(--sombra); }
+  .tile i { width: 52px; height: 52px; border-radius: 14px; background: #fbe9eb; color: var(--rojo); display: grid; place-items: center; }
+  .tile i svg { width: 26px; height: 26px; }
+  .tile b { font-family: var(--titulo); font-size: 22px; font-weight: 500; text-transform: uppercase; }
+  .tile small { color: var(--gris); }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+  .kpi { background: #fff; border: 1px solid var(--linea); border-radius: 16px; padding: 20px; }
+  .kpi small { color: var(--gris); font-size: 13px; }
+  .kpi b { display: block; font-family: var(--titulo); font-size: 32px; font-weight: 500; }
+  .kpi.alert b { color: var(--rojo); }
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--gris); padding: 10px; border-bottom: 1px solid var(--linea); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid #f0ece8; vertical-align: middle; }
+  td img { width: 46px; height: 46px; object-fit: cover; border-radius: 8px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .sz { display: flex; flex-wrap: wrap; gap: 4px; }
+  .sz span { font-size: 11px; border-radius: 6px; padding: 2px 6px; background: #f3f1ef; white-space: nowrap; }
+  .sz span.low { background: #fbe9eb; color: var(--rojo); font-weight: 600; }
+  .sz span.zero { background: var(--rojo); color: #fff; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px; }
+  .pill.ok { background: #e3f4ea; color: var(--verde); }
+  .pill.low { background: #fbe9eb; color: var(--rojo); }
+  .pill.pend { background: #fff4d6; color: #9a6b00; }
+  .pill.env { background: #e5eefc; color: #2451a6; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; }
+  .toolbar .field, .toolbar select { margin: 0; font-size: 14px; width: auto; padding: 9px 12px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+  .form-grid label, .lbl { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .full { grid-column: 1 / -1; }
+  .drop { border: 2px dashed #d9d4cf; border-radius: 14px; padding: 26px; text-align: center; color: var(--gris); cursor: pointer; margin-bottom: 12px; position: relative; }
+  .drop:hover { border-color: var(--rojo); }
+  .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .drop img { max-height: 180px; margin: 0 auto 8px; border-radius: 10px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .checks label { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; padding: 7px 8px; border: 1px solid var(--linea); border-radius: 8px; font-weight: 500; font-size: 13px; cursor: pointer; margin: 0; }
+  .checks input { display: none; }
+  .checks label:has(input:checked) { background: var(--negro); color: #fff; border-color: var(--negro); }
+  .menu-item { border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+  .menu-item header { display: flex; align-items: center; gap: 10px; }
+  .menu-item header b { flex: 1; font-size: 16px; }
+  .subs { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .subs span { background: #f3f1ef; border-radius: 99px; padding: 4px 6px 4px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
+  .subs span button, .x { width: 22px; height: 22px; border-radius: 99px; display: grid; place-items: center; color: var(--gris); }
+  .subs span button:hover, .x:hover { background: var(--rojo); color: #fff; }
+  .mini { padding: 7px 12px; font-size: 12px; border-radius: 8px; }
+  .inline { display: flex; gap: 8px; margin-top: 10px; }
+  .inline .field { margin: 0; padding: 8px 12px; }
+  .imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+  .imgbox { border: 1px solid var(--linea); border-radius: 14px; overflow: hidden; }
+  .imgbox img { width: 100%; aspect-ratio: 16/10; object-fit: cover; }
+  .imgbox div { padding: 12px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 14px; }
+  .imgbox label { position: relative; overflow: hidden; }
+  .imgbox label input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .estado { padding: 6px 8px; border: 1px solid var(--linea); border-radius: 8px; background: #fff; }
+  .note { font-size: 13px; color: var(--gris); background: #faf8f6; border-radius: 10px; padding: 12px 14px; margin-top: 12px; }
+  @media (max-width: 900px) {
+    .adm { grid-template-columns: 1fr; }
+    .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; gap: 4px; }
+    .side img { width: 100%; object-fit: contain; object-position: left; margin-bottom: 10px; }
+    .side button { width: auto; }
+    .side .foot { display: none; }
+    .main { padding: 20px 16px; }
+    .tiles, .kpis { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body data-base="../">
+<div class="adm">
+  <nav class="side" id="side">
+    <img src="../assets/img/logo-blanco.png" alt="Shama">
+    <button data-v="inicio" class="on"><svg viewBox="0 0 24 24"><path d="M3 11 12 4l9 7v9H3z"/></svg>Inicio</button>
+    <button data-v="dashboard"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Dashboard / Inventario</button>
+    <button data-v="nuevo"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Nuevo modelo</button>
+    <button data-v="productos"><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg>Productos</button>
+    <button data-v="imagenes"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg>Subir imágenes</button>
+    <button data-v="menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg>Editar menú</button>
+    <button data-v="pedidos"><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Verificación de pedidos</button>
+    <div class="foot">Prototipo de demostración<br><a href="../index.html">← Ver tienda</a><br><a href="#" id="reset">Restablecer datos</a></div>
+  </nav>
+
+  <main class="main">
+    <div class="top">
+      <h1 id="vTitle">Administrador<small>Controla los productos, imágenes y menú de tu tienda</small></h1>
+      <div class="user"><span>A</span> Administrador Shama</div>
+    </div>
+
+    <!-- INICIO -->
+    <section class="view on" id="v-inicio">
+      <div class="tiles">
+        <button class="tile" data-go="imagenes"><i><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-8 8"/></svg></i><b>Subir imagen</b><small>Cambia las fotos del carrusel, categorías y banners</small></button>
+        <button class="tile" data-go="dashboard"><i><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></i><b>Dashboard</b><small>Existencias por diseño, talla y color · descarga en Excel</small></button>
+        <button class="tile" data-go="menu"><i><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg></i><b>Editar menú</b><small>Agrega o elimina pestañas como Adolescente o Mascotas</small></button>
+        <button class="tile" data-go="pedidos"><i><svg viewBox="0 0 24 24"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg></i><b>Verificación de pedidos</b><small>Revisa, confirma y despacha los pedidos</small></button>
+        <button class="tile" data-go="nuevo"><i><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></i><b>Nuevo modelo</b><small>Sube un diseño y se publica en su sección automáticamente</small></button>
+        <button class="tile" data-go="productos"><i><svg viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></i><b>Productos</b><small>Consulta y elimina los modelos publicados</small></button>
+      </div>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="view" id="v-dashboard">
+      <div class="kpis" id="kpis"></div>
+      <div class="panel">
+        <h2>Inventario
+          <span class="toolbar">
+            <input class="field" id="invBuscar" placeholder="Buscar modelo o color…">
+            <select class="field" id="invCat"></select>
+            <button class="btn btn-dark mini" id="excel">⬇ Descargar Excel</button>
+          </span>
+        </h2>
+        <div class="tbl-wrap"><table id="invTbl"></table></div>
+        <p class="note">Las tallas en rojo tienen 1 par o menos. El Excel incluye dos hojas: el resumen por modelo y el detalle por talla.</p>
+      </div>
+    </section>
+
+    <!-- NUEVO MODELO -->
+    <section class="view" id="v-nuevo">
+      <form class="panel" id="formNuevo">
+        <h2>Nuevo modelo</h2>
+        <div class="form-grid">
+          <div class="full">
+            <span class="lbl">Foto del zapato</span>
+            <div class="drop" id="drop"><input type="file" accept="image/*" id="fFoto"><div id="dropTxt">📷 Arrastra una foto aquí o haz clic para elegirla</div></div>
+          </div>
+          <div><label>Nombre del modelo</label><input class="field" id="fNombre" required placeholder="Ej.: Mocasín Antigua"></div>
+          <div><label>Color</label><input class="field" id="fColor" required placeholder="Ej.: Café"></div>
+          <div><label>Tipo de zapato (sección donde se publica)</label><select class="field" id="fCat"></select></div>
+          <div><label>Subcategoría</label><select class="field" id="fSub"></select></div>
+          <div><label>Precio (Q)</label><input class="field" id="fPrecio" type="number" step="0.01" min="0" required placeholder="0.00"></div>
+          <div><label>Precio anterior (opcional, para descuento)</label><input class="field" id="fAntes" type="number" step="0.01" min="0" placeholder="0.00"></div>
+          <div class="full"><span class="lbl">Tallas disponibles</span><div class="checks" id="fTallas"></div></div>
+          <div><label>Existencias totales (pares)</label><input class="field" id="fStock" type="number" min="0" value="12" required></div>
+          <div style="display:flex;align-items:center"><label class="check" style="margin:14px 0 0;font-weight:500"><input type="checkbox" id="fNuevoChk" checked> Mostrar en “Lo nuevo en Shama”</label></div>
+        </div>
+        <button class="btn btn-red" style="margin-top:8px">Publicar modelo</button>
+        <p class="note">Al publicarlo aparece de inmediato en la sección que elegiste de la tienda. En este prototipo se guarda solo en este navegador.</p>
+      </form>
+    </section>
+
+    <!-- PRODUCTOS -->
+    <section class="view" id="v-productos">
+      <div class="panel">
+        <h2>Productos publicados <button class="btn btn-red mini" data-go="nuevo">+ Nuevo modelo</button></h2>
+        <div class="tbl-wrap"><table id="prodTbl"></table></div>
+      </div>
+    </section>
+
+    <!-- IMÁGENES -->
+    <section class="view" id="v-imagenes">
+      <div class="panel">
+        <h2>Carrusel principal</h2>
+        <div class="imgs" id="imgsHero"></div>
+      </div>
+      <div class="panel">
+        <h2>Tarjetas de categorías</h2>
+        <div class="imgs" id="imgsCats"></div>
+        <p class="note">En la versión final estas fotos se suben al servidor y se reemplazan en la tienda al instante.</p>
+      </div>
+    </section>
+
+    <!-- MENÚ -->
+    <section class="view" id="v-menu">
+      <div class="panel">
+        <h2>Pestañas del menú</h2>
+        <div id="menuList"></div>
+        <div class="inline"><input class="field" id="newTab" placeholder="Nueva pestaña, ej.: Adolescente"><button class="btn btn-dark mini" id="addTab">+ Agregar pestaña</button></div>
+        <p class="note">Los cambios se ven de inmediato en el menú de la tienda. Abre la tienda en otra pestaña para comprobarlo.</p>
+      </div>
+    </section>
+
+    <!-- PEDIDOS -->
+    <section class="view" id="v-pedidos">
+      <div class="panel">
+        <h2>Verificación de pedidos</h2>
+        <div class="tbl-wrap"><table id="pedTbl"></table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/app.js"></script>
+<script>
+/* ---------- Navegación del panel ---------- */
+const TITULOS = {
+  inicio: ["Administrador", "Controla los productos, imágenes y menú de tu tienda"],
+  dashboard: ["Dashboard", "Existencias de todos los diseños, tallas y colores"],
+  nuevo: ["Nuevo modelo", "Carga un diseño nuevo y elige en qué sección aparece"],
+  productos: ["Productos", "Modelos publicados en la tienda"],
+  imagenes: ["Imágenes", "Fotos del carrusel y de las secciones"],
+  menu: ["Editar menú", "Agrega o elimina pestañas y subcategorías"],
+  pedidos: ["Pedidos", "Confirma pagos y controla despachos"],
+};
+function ir(v) {
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
+  document.querySelectorAll("#side button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  document.getElementById("vTitle").innerHTML = `${TITULOS[v][0]}<small>${TITULOS[v][1]}</small>`;
+  ({ dashboard: pintarDash, productos: pintarProductos, menu: pintarMenu, pedidos: pintarPedidos, imagenes: pintarImgs, nuevo: prepararForm })[v]?.();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("[data-v],[data-go]").forEach(b => b.addEventListener("click", () => ir(b.dataset.v || b.dataset.go)));
+document.getElementById("reset").onclick = (e) => {
+  e.preventDefault();
+  if (confirm("¿Restablecer productos, menú y pedidos a los datos de ejemplo?")) {
+    ["menu", "productos", "pedidos", "carrito", "hero", "cats"].forEach(k => { try { localStorage.removeItem("shama_" + k); } catch (_) {} });
+    location.reload();
+  }
+};
+const catNombre = (id) => (getMenu().find(m => m.id === id) || { nombre: id }).nombre;
+const IMG = (src, w) => src.startsWith("http") ? src.replace("w=800", "w=" + w) : (src.startsWith("data:") ? src : "../" + src);
+
+/* Reparte las existencias de cada modelo entre sus tallas (demo estable) */
+function porTalla(p) {
+  const n = p.tallas.length, mid = (n - 1) / 2, out = {};
+  const w = p.tallas.map((t, i) => 1.5 - Math.abs(i - mid) / n + ((p.id + t) % 3) * 0.15);
+  const W = w.reduce((a, b) => a + b, 0);
+  let usado = 0;
+  p.tallas.forEach((t, i) => { out[t] = Math.floor(p.stock * w[i] / W); usado += out[t]; });
+  /* el sobrante se asigna a las tallas centrales, que más se venden */
+  const orden = p.tallas.map((t, i) => [Math.abs(i - mid), t]).sort((a, b) => a[0] - b[0]);
+  for (let k = 0; usado < p.stock; k++, usado++) out[orden[k % n][1]]++;
+  return out;
+}
+
+/* ---------- Dashboard ---------- */
+function pintarDash() {
+  const ps = getProductos(), menu = getMenu();
+  const sel = document.getElementById("invCat");
+  if (!sel.options.length || sel.options.length !== menu.length + 1)
+    sel.innerHTML = `<option value="">Todas las secciones</option>` + menu.map(m => `<option value="${m.id}">${m.nombre}</option>`).join("");
+  const pares = ps.reduce((a, p) => a + p.stock, 0);
+  const valor = ps.reduce((a, p) => a + p.stock * p.precio, 0);
+  const bajos = ps.filter(p => p.stock <= 5).length;
+  document.getElementById("kpis").innerHTML = `
+    <div class="kpi"><small>Modelos activos</small><b>${ps.length}</b></div>
+    <div class="kpi"><small>Pares en existencia</small><b>${pares.toLocaleString("es-GT")}</b></div>
+    <div class="kpi"><small>Valor del inventario</small><b>${Q(valor)}</b></div>
+    <div class="kpi alert"><small>Modelos con pocas existencias</small><b>${bajos}</b></div>`;
+
+  const q = document.getElementById("invBuscar").value.toLowerCase(), c = sel.value;
+  const rows = ps.filter(p => (!c || p.cat === c) && (p.nombre + " " + p.color).toLowerCase().includes(q));
+  document.getElementById("invTbl").innerHTML = `
+    <tr><th></th><th>Modelo</th><th>Sección</th><th>Color</th><th>Existencia por talla</th><th class="num">Total</th><th class="num">Precio</th><th>Estado</th></tr>` +
+    rows.map(p => {
+      const pt = porTalla(p);
+      return `<tr><td><img src="${IMG(p.img, 120)}" alt=""></td><td><b>${p.nombre}</b><br><small style="color:var(--gris)">${p.sub}</small></td>
+      <td>${catNombre(p.cat)}</td><td>${p.color}</td>
+      <td><div class="sz">${p.tallas.map(t => `<span class="${pt[t] === 0 ? "zero" : pt[t] <= 1 ? "low" : ""}">${t}: ${pt[t]}</span>`).join("")}</div></td>
+      <td class="num"><b>${p.stock}</b></td><td class="num">${Q(p.precio)}</td>
+      <td><span class="pill ${p.stock <= 5 ? "low" : "ok"}">${p.stock <= 5 ? "Reabastecer" : "Disponible"}</span></td></tr>`;
+    }).join("");
+}
+document.getElementById("invBuscar").oninput = pintarDash;
+document.getElementById("invCat").onchange = pintarDash;
+
+document.getElementById("excel").onclick = () => {
+  const ps = getProductos();
+  const resumen = ps.map(p => ({ Modelo: p.nombre, "Sección": catNombre(p.cat), "Subcategoría": p.sub, Color: p.color, Tallas: p.tallas.join(", "), Existencia: p.stock, "Precio (Q)": p.precio, "Valor (Q)": +(p.stock * p.precio).toFixed(2), Estado: p.stock <= 5 ? "Reabastecer" : "Disponible" }));
+  const detalle = [];
+  ps.forEach(p => { const pt = porTalla(p); p.tallas.forEach(t => detalle.push({ Modelo: p.nombre, "Sección": catNombre(p.cat), Color: p.color, Talla: t, Pares: pt[t] })); });
+  const fecha = new Date().toISOString().slice(0, 10);
+  if (window.XLSX) {
+    const wb = XLSX.utils.book_new();
+    const w1 = XLSX.utils.json_to_sheet(resumen); w1["!cols"] = [{ wch: 28 }, { wch: 16 }, { wch: 22 }, { wch: 14 }, { wch: 34 }, { wch: 10 }, { wch: 11 }, { wch: 12 }, { wch: 12 }];
+    const w2 = XLSX.utils.json_to_sheet(detalle); w2["!cols"] = [{ wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 8 }, { wch: 8 }];
+    XLSX.utils.book_append_sheet(wb, w1, "Resumen");
+    XLSX.utils.book_append_sheet(wb, w2, "Por talla");
+    XLSX.writeFile(wb, `Inventario_Shama_${fecha}.xlsx`);
+  } else {
+    /* Sin internet: se descarga en CSV, que también abre en Excel */
+    const csv = "﻿" + [Object.keys(detalle[0]).join(";"), ...detalle.map(r => Object.values(r).join(";"))].join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" })); a.download = `Inventario_Shama_${fecha}.csv`; a.click();
+  }
+  toast("Inventario descargado ✓");
+};
+
+/* ---------- Nuevo modelo ---------- */
+let fotoData = null;
+function prepararForm() {
+  const menu = getMenu().filter(m => m.id !== "descuentos");
+  const fCat = document.getElementById("fCat");
+  fCat.innerHTML = menu.map(m => `<option value="${m.id}">${m.nombre}</option>`).join("");
+  const subs = () => {
+    const m = menu.find(x => x.id === fCat.value);
+    document.getElementById("fSub").innerHTML = (m && m.sub.length ? m.sub : ["General"]).map(s => `<option>${s}</option>`).join("");
+    const tallas = fCat.value === "ninos" ? TALLAS_NINO : TALLAS_ADULTO;
+    document.getElementById("fTallas").innerHTML = tallas.map(t => `<label><input type="checkbox" value="${t}" checked>${t}</label>`).join("");
+  };
+  fCat.onchange = subs; subs();
+}
+document.getElementById("fFoto").onchange = (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const img = new Image(), r = new FileReader();
+  r.onload = () => { img.src = r.result; };
+  img.onload = () => { /* se reduce la foto para que quepa en el navegador */
+    const c = document.createElement("canvas"), s = Math.min(1, 700 / Math.max(img.width, img.height));
+    c.width = img.width * s; c.height = img.height * s; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    fotoData = c.toDataURL("image/jpeg", .8);
+    document.getElementById("dropTxt").innerHTML = `<img src="${fotoData}" alt="">${f.name}`;
+  };
+  r.readAsDataURL(f);
+};
+document.getElementById("formNuevo").onsubmit = (e) => {
+  e.preventDefault();
+  const tallas = [...document.querySelectorAll("#fTallas input:checked")].map(i => +i.value);
+  if (!tallas.length) return toast("Elige al menos una talla");
+  const ps = getProductos();
+  const p = {
+    id: Math.max(...ps.map(x => x.id)) + 1,
+    nombre: document.getElementById("fNombre").value.trim(),
+    cat: document.getElementById("fCat").value,
+    sub: document.getElementById("fSub").value,
+    precio: +document.getElementById("fPrecio").value,
+    antes: +document.getElementById("fAntes").value || null,
+    color: document.getElementById("fColor").value.trim(),
+    img: fotoData || "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=75",
+    tallas, stock: +document.getElementById("fStock").value,
+    nuevo: document.getElementById("fNuevoChk").checked,
+  };
+  ps.unshift(p); Store.set("productos", ps);
+  e.target.reset(); fotoData = null; document.getElementById("dropTxt").textContent = "📷 Arrastra una foto aquí o haz clic para elegirla";
+  prepararForm();
+  toast(`“${p.nombre}” publicado en ${catNombre(p.cat)} ✓`);
+  ir("productos");
+};
+
+/* ---------- Productos ---------- */
+function pintarProductos() {
+  const ps = getProductos();
+  document.getElementById("prodTbl").innerHTML = `<tr><th></th><th>Modelo</th><th>Sección</th><th>Subcategoría</th><th class="num">Precio</th><th class="num">Existencia</th><th></th></tr>` +
+    ps.map(p => `<tr><td><img src="${IMG(p.img, 120)}" alt=""></td><td><b>${p.nombre}</b> · ${p.color}</td><td>${catNombre(p.cat)}</td><td>${p.sub}</td>
+      <td class="num">${Q(p.precio)}</td><td class="num">${p.stock}</td>
+      <td class="num"><a class="btn btn-light btn-outline mini" href="../producto.html?id=${p.id}" target="_blank">Ver</a> <button class="btn btn-red mini" data-del="${p.id}">Eliminar</button></td></tr>`).join("");
+  document.querySelectorAll("#prodTbl [data-del]").forEach(b => b.onclick = () => {
+    const ps = getProductos(), p = ps.find(x => x.id === +b.dataset.del);
+    if (confirm(`¿Eliminar “${p.nombre}” de la tienda?`)) { Store.set("productos", ps.filter(x => x !== p)); pintarProductos(); toast("Modelo eliminado"); }
+  });
+}
+
+/* ---------- Imágenes ---------- */
+function pintarImgs() {
+  const box = (src, titulo, key, i) => `<div class="imgbox"><img src="${IMG(src, 600)}" alt=""><div><span>${titulo}</span>
+    <label class="btn btn-dark mini">Cambiar<input type="file" accept="image/*" data-k="${key}" data-i="${i}"></label></div></div>`;
+  document.getElementById("imgsHero").innerHTML = HERO.map((h, i) => box(h.img, `Slide ${i + 1}: ${h.kicker}`, "hero", i)).join("");
+  document.getElementById("imgsCats").innerHTML = CATEGORIAS_HOME.map((c, i) => box(c.img, c.nombre, "cats", i)).join("");
+  document.querySelectorAll(".imgbox input").forEach(inp => inp.onchange = () => {
+    const f = inp.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = () => { inp.closest(".imgbox").querySelector("img").src = r.result; toast("Imagen actualizada (vista previa) ✓"); };
+    r.readAsDataURL(f);
+  });
+}
+
+/* ---------- Menú ---------- */
+function pintarMenu() {
+  const menu = getMenu();
+  document.getElementById("menuList").innerHTML = menu.map((m, i) => `
+    <div class="menu-item">
+      <header><b>${m.nombre}</b>
+        <button class="x" title="Subir" data-up="${i}">↑</button>
+        <button class="btn btn-light btn-outline mini" data-delm="${i}">Eliminar pestaña</button></header>
+      <div class="subs">${m.sub.map((s, j) => `<span>${s}<button title="Quitar" data-i="${i}" data-j="${j}">✕</button></span>`).join("") || `<small style="color:var(--gris)">Sin subcategorías</small>`}</div>
+      <div class="inline"><input class="field" placeholder="Nueva subcategoría" id="ns${i}"><button class="btn btn-dark mini" data-adds="${i}">+ Agregar</button></div>
+    </div>`).join("");
+  const save = (m) => { Store.set("menu", m); pintarMenu(); };
+  document.querySelectorAll("[data-delm]").forEach(b => b.onclick = () => {
+    const m = getMenu(); if (confirm(`¿Eliminar la pestaña “${m[b.dataset.delm].nombre}”?`)) { m.splice(b.dataset.delm, 1); save(m); }
+  });
+  document.querySelectorAll(".subs button").forEach(b => b.onclick = () => { const m = getMenu(); m[b.dataset.i].sub.splice(b.dataset.j, 1); save(m); });
+  document.querySelectorAll("[data-adds]").forEach(b => b.onclick = () => {
+    const v = document.getElementById("ns" + b.dataset.adds).value.trim(); if (!v) return;
+    const m = getMenu(); m[b.dataset.adds].sub.push(v); save(m);
+  });
+  document.querySelectorAll("[data-up]").forEach(b => b.onclick = () => {
+    const i = +b.dataset.up; if (!i) return; const m = getMenu(); [m[i - 1], m[i]] = [m[i], m[i - 1]]; save(m);
+  });
+}
+document.getElementById("addTab").onclick = () => {
+  const v = document.getElementById("newTab").value.trim(); if (!v) return;
+  const id = v.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-");
+  const m = getMenu(); m.push({ id, nombre: v, sub: [] }); Store.set("menu", m);
+  document.getElementById("newTab").value = ""; pintarMenu(); toast(`Pestaña “${v}” agregada ✓`);
+};
+
+/* ---------- Pedidos ---------- */
+const PEDIDOS_DEMO = [
+  { id: "SH-24817", fecha: "28/9/2026, 16:42", cliente: "María López", total: 669.98, metodo: "visacuotas", estado: "Pagado" },
+  { id: "SH-24809", fecha: "28/9/2026, 11:05", cliente: "Carlos Pérez", total: 574.99, metodo: "contra", estado: "Pendiente" },
+  { id: "SH-24795", fecha: "27/9/2026, 19:20", cliente: "Ana Gómez", total: 344.99, metodo: "transferencia", estado: "Verificar boleta" },
+  { id: "SH-24781", fecha: "27/9/2026, 09:13", cliente: "José Ramírez", total: 1099.98, metodo: "tarjeta", estado: "Enviado" },
+];
+const METODO = { tarjeta: "Tarjeta", visacuotas: "Visacuotas (Recurrente)", contra: "Contra entrega", transferencia: "Transferencia" };
+const ESTADOS = ["Pendiente", "Verificar boleta", "Pagado", "Enviado", "Entregado", "Cancelado"];
+function pintarPedidos() {
+  let ps = Store.get("pedidos", null);
+  if (!ps || !ps.length) ps = PEDIDOS_DEMO; else ps = [...ps, ...PEDIDOS_DEMO.filter(d => !ps.some(p => p.id === d.id))];
+  document.getElementById("pedTbl").innerHTML = `<tr><th>Pedido</th><th>Fecha</th><th>Cliente</th><th>Método de pago</th><th class="num">Total</th><th>Estado</th></tr>` +
+    ps.map((p, i) => `<tr><td><b>${p.id}</b></td><td>${p.fecha}</td><td>${p.cliente}</td><td>${METODO[p.metodo] || p.metodo}</td><td class="num">${Q(p.total)}</td>
+      <td><select class="estado" data-i="${i}">${ESTADOS.map(e => `<option ${e === p.estado ? "selected" : ""}>${e}</option>`).join("")}</select></td></tr>`).join("");
+  document.querySelectorAll(".estado").forEach(s => s.onchange = () => { ps[s.dataset.i].estado = s.value; Store.set("pedidos", ps); toast(`Pedido ${ps[s.dataset.i].id}: ${s.value}`); });
+}
+</script>
+</body>
+</html>

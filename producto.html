@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Producto | Calzado Shama</title>
+<link rel="icon" href="assets/img/logo-original.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header id="site-header"></header>
+<main class="wrap">
+  <div class="pdp" id="pdp"></div>
+  <section class="section" style="padding-top:10px" id="rel">
+    <div class="section-head">
+      <h2>También te puede gustar</h2>
+      <div class="rail-ctrls">
+        <button class="rail-prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button>
+        <button class="rail-next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>
+    </div>
+    <div class="rail" id="railRel"></div>
+  </section>
+</main>
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const todos = getProductos();
+const p = todos.find(x => x.id === +param("id")) || todos[0];
+const cat = getMenu().find(m => m.id === p.cat);
+document.title = p.nombre + " | Calzado Shama";
+let talla = null;
+
+document.getElementById("pdp").innerHTML = `
+  <div class="pdp-img"><img src="${p.img.replace("w=800", "w=1200")}" alt="${p.nombre}"></div>
+  <div>
+    <div class="crumbs" style="color:var(--gris)"><a href="index.html">Inicio</a> / <a href="categoria.html?c=${p.cat}">${cat ? cat.nombre : p.cat}</a> / ${p.sub}</div>
+    <h1>${p.nombre}</h1>
+    <div class="price">${p.antes ? `<s>${Q(p.antes)}</s>` : ""}<span>${Q(p.precio)}</span></div>
+    <small style="color:var(--gris)">o 12 cuotas de ${Q(p.precio / 12)} con Visacuotas</small>
+    <div class="pdp-block"><h4>Color</h4>${p.color}</div>
+    <div class="pdp-block">
+      <h4>Talla</h4>
+      <div class="size-grid" id="tallas">${p.tallas.map(t => `<button data-t="${t}">${t}</button>`).join("")}</div>
+    </div>
+    <p class="${p.stock <= 5 ? "stock-low" : "stock-ok"}">${p.stock <= 5 ? `¡Últimos ${p.stock} pares!` : "● Disponible en existencia"}</p>
+    <div class="pdp-block" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-red" id="add" style="flex:1">Agregar al carrito</button>
+      <a class="btn btn-dark" id="buy" href="checkout.html" style="flex:1">Comprar ahora</a>
+    </div>
+    <div class="pdp-block">
+      <h4>Detalles</h4>
+      <ul>
+        <li>Corte de cuero genuino, forro transpirable.</li>
+        <li>Plantilla acolchada${p.cat === "ortopedico" || p.cat === "diabetico" ? " anatómica con soporte de arco" : ""}.</li>
+        <li>Suela antideslizante de hule.</li>
+        <li>Hecho en Guatemala por Calzado Shama.</li>
+      </ul>
+    </div>
+  </div>`;
+
+document.querySelectorAll("#tallas button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#tallas button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on"); talla = +b.dataset.t;
+});
+const validar = () => { if (!talla) { toast("Elige una talla primero"); return false; } return true; };
+document.getElementById("add").onclick = () => validar() && agregarAlCarrito(p.id, talla);
+document.getElementById("buy").onclick = (e) => { if (!validar()) return e.preventDefault(); agregarAlCarrito(p.id, talla); };
+
+document.getElementById("railRel").innerHTML = mezclar(todos.filter(x => x.cat === p.cat && x.id !== p.id)).map(cardProducto).join("");
+activarCarrusel(document.getElementById("rel"));
+</script>
+</body>
+</html>

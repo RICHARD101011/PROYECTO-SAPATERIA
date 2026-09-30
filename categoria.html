@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Catálogo | Calzado Shama</title>
+<link rel="icon" href="assets/img/logo-original.png">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+<header id="site-header"></header>
+
+<section class="cat-banner">
+  <img id="catImg" src="" alt="">
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html">Inicio</a> / <span id="crumb"></span></div>
+    <h1 id="catTitle"></h1>
+  </div>
+</section>
+
+<main class="wrap listing">
+  <aside class="filters">
+    <h3>Talla</h3>
+    <div class="size-grid" id="fTallas"></div>
+    <h3>Color</h3>
+    <div id="fColores"></div>
+    <h3>Precio</h3>
+    <label><input type="radio" name="precio" value="0-99999" checked> Todos</label>
+    <label><input type="radio" name="precio" value="0-300"> Hasta Q300</label>
+    <label><input type="radio" name="precio" value="300-500"> Q300 a Q500</label>
+    <label><input type="radio" name="precio" value="500-99999"> Más de Q500</label>
+    <h3>Mostrar</h3>
+    <label><input type="checkbox" id="fOferta"> Solo en descuento</label>
+    <label><input type="checkbox" id="fNuevo"> Solo lo nuevo</label>
+  </aside>
+
+  <section>
+    <div class="chips" id="chips"></div>
+    <div class="list-top">
+      <span id="count"></span>
+      <select id="orden" aria-label="Ordenar">
+        <option value="rel">Ordenar: destacados</option>
+        <option value="asc">Precio: menor a mayor</option>
+        <option value="desc">Precio: mayor a menor</option>
+        <option value="az">Nombre: A–Z</option>
+      </select>
+    </div>
+    <div class="grid-products" id="grid"></div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const c = param("c") || "", s = param("s") || "", q = (param("q") || "").toLowerCase();
+const menu = getMenu();
+const item = menu.find(m => m.id === c);
+const todos = getProductos();
+
+let base;
+if (q) base = todos.filter(p => (p.nombre + " " + p.color + " " + p.sub + " " + p.cat).toLowerCase().includes(q));
+else if (c === "descuentos") base = todos.filter(p => p.antes);
+else if (item) base = todos.filter(p => p.cat === c);
+else base = todos;
+
+const titulo = q ? `Resultados: “${param("q")}”` : item ? item.nombre : "Catálogo";
+document.title = titulo + " | Calzado Shama";
+document.getElementById("catTitle").textContent = s || titulo;
+document.getElementById("crumb").textContent = item ? item.nombre + (s ? " / " + s : "") : titulo;
+document.getElementById("catImg").src = BANNERS_CATEGORIA[c] || BANNERS_CATEGORIA.descuentos;
+
+/* Chips de subcategoría (salen del menú, editable en el panel) */
+if (item && item.sub.length) {
+  document.getElementById("chips").innerHTML =
+    `<a href="categoria.html?c=${c}" class="${s ? "" : "on"}">Todo</a>` +
+    item.sub.map(x => `<a href="categoria.html?c=${c}&s=${encodeURIComponent(x)}" class="${x === s ? "on" : ""}">${x}</a>`).join("");
+}
+if (s) base = base.filter(p => p.sub === s);
+
+/* Filtros */
+const tallas = [...new Set(base.flatMap(p => p.tallas))].sort((a, b) => a - b);
+const colores = [...new Set(base.map(p => p.color))].sort();
+const selTallas = new Set();
+document.getElementById("fTallas").innerHTML = tallas.map(t => `<button data-t="${t}">${t}</button>`).join("");
+document.getElementById("fColores").innerHTML = colores.map(x => `<label><input type="checkbox" value="${x}"> ${x}</label>`).join("");
+
+document.querySelectorAll("#fTallas button").forEach(b => b.onclick = () => {
+  const t = +b.dataset.t; selTallas.has(t) ? selTallas.delete(t) : selTallas.add(t);
+  b.classList.toggle("on"); pintar();
+});
+document.querySelectorAll(".filters input, #orden").forEach(el => el.onchange = pintar);
+
+function pintar() {
+  const cols = [...document.querySelectorAll("#fColores input:checked")].map(i => i.value);
+  const [min, max] = document.querySelector("input[name=precio]:checked").value.split("-").map(Number);
+  let r = base.filter(p =>
+    (!selTallas.size || p.tallas.some(t => selTallas.has(t))) &&
+    (!cols.length || cols.includes(p.color)) &&
+    p.precio >= min && p.precio <= max &&
+    (!document.getElementById("fOferta").checked || p.antes) &&
+    (!document.getElementById("fNuevo").checked || p.nuevo));
+  const o = document.getElementById("orden").value;
+  if (o === "asc") r.sort((a, b) => a.precio - b.precio);
+  if (o === "desc") r.sort((a, b) => b.precio - a.precio);
+  if (o === "az") r.sort((a, b) => a.nombre.localeCompare(b.nombre));
+  document.getElementById("count").textContent = r.length + (r.length === 1 ? " producto" : " productos");
+  document.getElementById("grid").innerHTML = r.length ? r.map(cardProducto).join("")
+    : `<div class="empty">No encontramos productos con esos filtros.</div>`;
+}
+pintar();
+</script>
+</body>
+</html>
